@@ -9,3 +9,9 @@ export class UserNotFound extends Error {
     super(msg);
   }
 }
+
+export class OtpNotMatch extends Error {
+  constructor(msg: string) {
+    super(msg);
+  }
+}

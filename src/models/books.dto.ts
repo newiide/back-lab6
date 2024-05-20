@@ -1,16 +1,24 @@
-import { IsString, IsNotEmpty, IsNumber, IsOptional } from '@nestjs/class-validator';
+import { IsString, IsNotEmpty, IsArray, ArrayNotEmpty, ValidateNested } from '@nestjs/class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
+class PageLinkDto {
+  @ApiProperty({ type: String })
+  @IsString()
+  @IsNotEmpty()
+  pageLink: string;
+}
 export class BooksDto {
   @ApiProperty({ type: String })
   @IsString()
   @IsNotEmpty()
   title: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
+  @ApiProperty({ type: [PageLinkDto] })
+  @IsArray()
+  @ArrayNotEmpty()
+  @ValidateNested({ each: true })
   @IsNotEmpty()
-  pageLinks: string;
-
-  
+  @Type(() => PageLinkDto)
+  pageLinks: PageLinkDto[];
 }

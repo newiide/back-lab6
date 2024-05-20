@@ -3,13 +3,16 @@ import { Types, Document } from 'mongoose';
 
 @Schema({ collection: 'parts' })
 export class Parts {
-  @Prop({ type: String, required: true })
-  title: string;
+  @Prop({type: String, required: true})
+  pictureId: string;
+  
+  @Prop({type: Object, required: true})
+  box: object;
 
-  @Prop({ type: String, required: true })
-  pageLinks: string;
-
+  @Prop({ type: [Object], required: false})
+  options: {text:string, count: number}[];
 }
+
 export const PartsSchema = SchemaFactory.createForClass(Parts);
 
 export type PartsLeanDoc = Parts & { _id: Types.ObjectId };

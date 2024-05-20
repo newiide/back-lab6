@@ -1,12 +1,24 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { UsersController, AdminController, DriverController  } from './controllers/users.controller';
+import { UsersController } from './controllers/users.controller';
 import { UserService } from './service/user.service';
+import { BookService } from './service/books.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AddressesSchema, Addresses, Orders, OrdersSchema, UserSchema, Users } from './schema';
+import {
+  Books,
+  BooksSchema,
+  Users,
+  UserSchema,
+  Pages,
+  PagesSchema,
+  Parts,
+  PartsSchema,
+  PartAccessTokens,
+  PartAccessTokensSchema,
+} from './schema';
 import { UserAuthorizationMiddleware } from './midellware/userAuthorization.middleware';
-import { OrdersController } from './controllers/books.controller';
-import { OrderService } from './service';
-import { AddressesService} from './service/addresses.service';
+import { SplitToPartService } from './service/splitToParts.service';
+import { BooksController } from './controllers/books.controller';
+
 
 @Module({
   imports: [
@@ -20,20 +32,30 @@ import { AddressesService} from './service/addresses.service';
         schema: UserSchema,
       },
       {
-        name: Orders.name,
-        schema: OrdersSchema,
+        name: Books.name,
+        schema: BooksSchema,
       },
       {
-        name: Addresses.name,
-        schema: AddressesSchema
-      }
+        name: Pages.name,
+        schema: PagesSchema,
+      },
+      {
+        name: Parts.name,
+        schema: PartsSchema,
+      },
+      {
+        name: PartAccessTokens.name,
+        schema: PartAccessTokensSchema,
+      },
     ]),
   ],
-  controllers: [UsersController, OrdersController, AdminController, DriverController],
-  providers: [UserService, OrderService, AddressesService],
+  controllers: [UsersController, BooksController],
+
+  providers: [UserService, BookService, SplitToPartService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(UserAuthorizationMiddleware).forRoutes('/orders');
+    consumer.apply(UserAuthorizationMiddleware).exclude().forRoutes('/books');
   }
 }
+

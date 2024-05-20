@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, MinLength, IsOptional } from '@nestjs/class-validator';
+import { IsString, IsNotEmpty } from '@nestjs/class-validator';
 
 export class PartsDto {
   @ApiProperty({ type: String })

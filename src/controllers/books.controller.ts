@@ -1,11 +1,20 @@
-import { Body, Controller, Post, Req, Get,Patch } from '@nestjs/common';
-import { BookService, PartsService } from '../service';
+import {
+  Body,
+  Controller,
+  Post,
+  Req,
+  Get,
+  Param,
+  BadRequestException,
+} from '@nestjs/common';
+import { BookService } from '../service';
 import { BooksDto, PartsDto } from '../models';
 import { UserLeanDoc } from '../schema';
+import { OtpNotMatch } from 'src/shared';
 
 @Controller({ path: '/books' })
 export class BooksController {
-  constructor(private readonly orderService: BooksService) {}
+  constructor(private readonly bookService: BookService) {}
 
   @Post('/')
   async createBook(
@@ -15,11 +24,11 @@ export class BooksController {
     try {
       const { user } = req;
 
-      const order = await this.orderService.createBook({
+      const book = await this.bookService.createBook({
         ...body,
         login: user.login,
       });
-      return order;
+      return book;
     } catch (err) {
       throw err;
     }
@@ -30,7 +39,7 @@ export class BooksController {
     try {
       const { user } = req;
 
-      const books = await this.booksService.getBook(user);
+      const books = await this.bookService.getBook(user);
       return books;
     } catch (err) {
       throw err;
@@ -40,59 +49,30 @@ export class BooksController {
   @Get('/parts')
   async getParts(@Req() req: Request & { user: UserLeanDoc }) {
     try {
-      const { user } = req;
 
-      const books = await this.partsService.getBook(user);
-      return books;
+      const randomPart = await this.bookService.getParts();
+      return randomPart;
     } catch (err) {
       throw err;
     }
   }
 
-
-  @Get('/addresses/from/last-5')
-  async getLast5Fromddresses(@Req() req: Request & { user: UserLeanDoc }) {
+  @Post('/parts/:_id')
+  async postParts(
+    @Req() req: Request & { user: UserLeanDoc },
+    @Body() body: PartsDto,
+    @Param('_id') partId: string,
+  ) {
     try {
-      const { user } = req;
-      const last5Addresses = await this.orderService.getRecentFromAddresses(user.login);
-      return last5Addresses;
+      const partText = await this.bookService.postParts(partId, body);
+      return `Your answer ${partText} was saved successfully`;
     } catch (err) {
-      throw err;
+      if (err instanceof OtpNotMatch) {
+        throw new BadRequestException(err.message);
+      }
     }
   }
+}
 
-  @Get('/addresses/to/last-3')
-  async getLast3ToAddresses(@Req() req: Request & { user: UserLeanDoc }) {
-    try {
-      const { user } = req;
-      const last3Addresses = await this.orderService.getRecentToAddresses(user.login);
-      return last3Addresses;
-    } catch (err) {
-      throw err;
-    }
-  }
-
-  @Get('/lowest')
-  async getLowestPriceOrder(@Req() req: Request & { user: UserLeanDoc }) {
-    try {
-      const { user } = req;
-      const lowestPriceOrder = await this.orderService.getLowestPrice(user.login);
-      return lowestPriceOrder;
-    } catch (err) {
-      throw err;
-    }
-  }
-
-  @Get('/biggest')
-  async getBiggestPriceOrder(@Req() req: Request & { user: UserLeanDoc }) {
-    try {
-      const { user } = req;
-      const biggestPriceOrder = await this.orderService.getBiggestPrice(user.login);
-      return biggestPriceOrder;
-    } catch (err) {
-      throw err;
-    }
-  }
-  }
 
 
